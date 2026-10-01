@@ -24,6 +24,16 @@ No improvises formatos: cada flujo tiene una skill con el formato institucional 
 
 1. Renombrar facturas (si llegan en ZIP) → 2. Validar comprobantes → 3. Acta de reunión (usa ingresos/costos de los comprobantes validados) → 4. Visita técnica (si toca: 1 primera + 3 periódicas, contador n/4) → 5. Informe de cobro (una vez por mes, consolida los 14).
 
+## Google Drive
+
+Las herramientas `mcp__Google_Drive__*` (cárgalas con ToolSearch si no están disponibles) permiten leer y guardar archivos sin que el usuario los suba a mano.
+
+- **Carpeta raíz**: pregunta una vez por el nombre o ID de la carpeta de FonQuito y reutilízala. Estructura esperada: `<raíz>/<MesAño>/<EMPRENDIMIENTO>/` con `Gastos_*.xlsx`, `Ventas_*.xlsx` y los ZIP/RAR de facturas. Si la estructura difiere, búscala con `search_files` (`parentId = '<id>'`, `title contains '<EMPRENDIMIENTO>'`) y confirma antes de procesar.
+- **Excel**: `read_file_content` sirve para revisar el contenido; para procesarlo con las skills usa `download_file_content` (base64), decodifícalo a un archivo en el directorio de trabajo y trabaja sobre esa copia.
+- **ZIP/RAR**: `download_file_content` devuelve todo el archivo en base64 dentro del contexto. Úsalo solo en archivos pequeños (unos pocos MB); si pesa más, pide al usuario que lo suba directamente a la sesión.
+- **Resultados**: sube los entregables con `create_file` (`parentId` = carpeta del emprendimiento, `disableConversionToGoogleType: true` para conservar .xlsx/.docx). Nunca sobrescribas ni borres archivos existentes; si el nombre ya existe, avisa y agrega sufijo `_v2`.
+- Antes de subir, muestra la lista de archivos y la carpeta destino y espera confirmación.
+
 ## Cómo trabajar
 
 1. Si falta un dato obligatorio de la skill, pídelo en una sola pregunta agrupada; no inventes RUC, montos ni fechas.

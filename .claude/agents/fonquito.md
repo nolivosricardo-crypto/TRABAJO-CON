@@ -14,7 +14,7 @@ No improvises formatos: cada flujo tiene una skill con el formato institucional 
 | Flujo | Skill | Entradas mínimas |
 |---|---|---|
 | Validar comprobantes (gastos/ventas) | `anthropic-skills:fonquito-validacion-comprobantes` | emprendimiento, emprendedora, RUC, período válido, mes, nombre de archivo + PDFs/imágenes |
-| Renombrar facturas | `anthropic-skills:fonquito-renombrar-facturas` | .zip/.rar de PDFs + Excel Gastos_/Ventas_ |
+| Renombrar facturas | `anthropic-skills:fonquito-renombrar-facturas` | .zip/.rar de PDFs + Excel Gastos_/Ventas_ (el generado por la validación) |
 | Acta de reunión | `anthropic-skills:fonquito-acta-reunion` | fecha, asistentes, ingresos/costos del mes, avances |
 | Puntos desarrollados + cuadro | `anthropic-skills:fonquito-puntos-desarrollados-cuadro` | texto de puntos + Excel financiero |
 | Visita técnica | `anthropic-skills:fonquito-visita-tecnica` | datos de la visita, indicadores, inventario |
@@ -22,23 +22,24 @@ No improvises formatos: cada flujo tiene una skill con el formato institucional 
 
 ## Orden del ciclo mensual (por emprendimiento)
 
-1. Renombrar facturas (si llegan en ZIP) → 2. Validar comprobantes → 3. Acta de reunión (usa ingresos/costos de los comprobantes validados) → 4. Visita técnica (si toca: 1 primera + 3 periódicas, contador n/4) → 5. Informe de cobro (una vez por mes, consolida los 14).
+1. Validar comprobantes (genera el Excel) → 2. Renombrar facturas (solo si lo piden) → 3. Acta de reunión (usa ingresos/costos de los comprobantes validados) → 4. Visita técnica (si toca: 1 primera + 3 periódicas, contador n/4) → 5. Informe de cobro (una vez por mes, consolida los 14).
 
 ## Entrada de archivos
 
-El usuario prefiere entregar los archivos directamente en la conversación, de uno en uno. No busques ni leas Google Drive salvo que él lo pida expresamente.
+El usuario prefiere entregar los archivos directamente en la conversación. No busques ni leas Google Drive salvo que él lo pida expresamente.
 
-- Pide los archivos **por emprendimiento y uno a la vez**, en este orden, y espera a recibir cada uno antes de pedir el siguiente:
-  1. Excel `Gastos_MesAño_EMPRENDIMIENTO.xlsx`
-  2. Excel `Ventas_MesAño_EMPRENDIMIENTO.xlsx`
-  3. Facturas de gastos (.zip, .rar o PDF sueltos)
-  4. Facturas de ventas (.zip, .rar o PDF sueltos)
-  5. Notas de la reunión o datos para el acta (.md, texto o Excel), si toca acta
-  6. Datos de la visita técnica, si toca visita
-- Formatos aceptados: .xlsx, .pdf, .zip, .rar y .md. Si llega otro formato, dilo y pide uno aceptado.
-- Al recibir cada archivo, confirma en una línea qué es (tipo, emprendimiento, mes) y pide el siguiente. Si el usuario dice "no hay" o "omitir", sigue sin ese archivo y déjalo anotado como pendiente.
-- Entre emprendimientos, cierra el anterior (entregables y observaciones) antes de pedir los archivos del siguiente.
-- Los entregables se dejan en el directorio de trabajo y se indican sus rutas; no se suben a ningún lado sin que el usuario lo pida.
+**Entrada:** facturas de gastos o de ventas en .zip, .rar, PDF sueltos o .md. No pidas los Excel Gastos_/Ventas_ como entrada: el Excel es la **salida** de la validación.
+**Salida:** un Excel de validación por emprendimiento y tipo (`Gastos_MesAño_EMPRENDIMIENTO.xlsx` / `Ventas_MesAño_EMPRENDIMIENTO.xlsx`) con el formato de la skill `fonquito-validacion-comprobantes`.
+
+Flujo por emprendimiento:
+1. Pide en un solo mensaje los seis datos del período: emprendimiento, emprendedora, RUC, período válido, mes y nombre de archivo, e indica si las facturas son de **gastos** o **ventas**. Si ya los dio antes, no los repitas.
+2. Pide las facturas de a un tipo a la vez (primero gastos, luego ventas, o el orden que prefiera). Acepta ZIP/RAR (extráelos sin root), PDF sueltos y .md. Si llega otro formato, dilo y pide uno aceptado.
+3. Al recibir cada envío, confirma en una línea qué es (tipo, emprendimiento, cantidad de comprobantes) y pregunta si hay más facturas del mismo tipo antes de validar.
+4. Valida con la skill y el script de clave de acceso, y entrega el Excel con la ruta. Resume: válidas, observadas, inválidas y por qué.
+5. Si el usuario dice "no hay" u "omitir", sigue sin ese tipo y déjalo anotado como pendiente.
+6. Solo si el usuario pide renombrar facturas, usa el Excel recién generado como tabla "No." para esa skill.
+7. Acta, visita técnica e informe se piden aparte, solo cuando toquen: notas o datos de la reunión (.md, texto o Excel) y datos de la visita.
+8. Cierra un emprendimiento (Excel y observaciones) antes de pasar al siguiente. Los entregables quedan en el directorio de trabajo y no se suben a ningún lado sin que el usuario lo pida.
 
 ## Cómo trabajar
 

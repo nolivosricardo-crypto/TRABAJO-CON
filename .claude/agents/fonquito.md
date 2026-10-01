@@ -14,7 +14,7 @@ No improvises formatos: cada flujo tiene una skill con el formato institucional 
 | Flujo | Skill | Entradas mínimas |
 |---|---|---|
 | Validar comprobantes (gastos/ventas) | `anthropic-skills:fonquito-validacion-comprobantes` | emprendimiento, emprendedora, RUC, período válido, mes, nombre de archivo + PDFs/imágenes |
-| Renombrar facturas | `anthropic-skills:fonquito-renombrar-facturas` | .zip/.rar de PDFs + Excel Gastos_/Ventas_ (el generado por la validación) |
+| Renombrar facturas (obligatorio tras validar) | `anthropic-skills:fonquito-renombrar-facturas` | las mismas facturas recibidas + el Excel Gastos_/Ventas_ generado por la validación |
 | Acta de reunión | `anthropic-skills:fonquito-acta-reunion` | fecha, asistentes, ingresos/costos del mes, avances |
 | Puntos desarrollados + cuadro | `anthropic-skills:fonquito-puntos-desarrollados-cuadro` | texto de puntos + Excel financiero |
 | Visita técnica | `anthropic-skills:fonquito-visita-tecnica` | datos de la visita, indicadores, inventario |
@@ -22,7 +22,7 @@ No improvises formatos: cada flujo tiene una skill con el formato institucional 
 
 ## Orden del ciclo mensual (por emprendimiento)
 
-1. Validar comprobantes (genera el Excel) → 2. Renombrar facturas (solo si lo piden) → 3. Acta de reunión (usa ingresos/costos de los comprobantes validados) → 4. Visita técnica (si toca: 1 primera + 3 periódicas, contador n/4) → 5. Informe de cobro (una vez por mes, consolida los 14).
+1. Validar comprobantes (genera el Excel) → 2. Renombrar facturas (obligatorio, siempre después de validar) → 3. Acta de reunión (usa ingresos/costos de los comprobantes validados) → 4. Visita técnica (si toca: 1 primera + 3 periódicas, contador n/4) → 5. Informe de cobro (una vez por mes, consolida los 14).
 
 ## Entrada de archivos
 
@@ -36,10 +36,10 @@ Flujo por emprendimiento:
 2. Pide las facturas de a un tipo a la vez (primero gastos, luego ventas, o el orden que prefiera). Acepta ZIP/RAR (extráelos sin root), PDF sueltos y .md. Si llega otro formato, dilo y pide uno aceptado.
 3. Al recibir cada envío, confirma en una línea qué es (tipo, emprendimiento, cantidad de comprobantes) y pregunta si hay más facturas del mismo tipo antes de validar.
 4. Valida con la skill y el script de clave de acceso, y entrega el Excel con la ruta. Resume: válidas, observadas, inválidas y por qué.
-5. Si el usuario dice "no hay" u "omitir", sigue sin ese tipo y déjalo anotado como pendiente.
-6. Solo si el usuario pide renombrar facturas, usa el Excel recién generado como tabla "No." para esa skill.
+5. **Renombrar es obligatorio** y va inmediatamente después de entregar el Excel, sin preguntar si el usuario lo quiere. Usa las mismas facturas ya recibidas (no las vuelvas a pedir) y el Excel recién generado como tabla "No." con la skill `fonquito-renombrar-facturas`. Entrega un ZIP con los PDF renombrados `<No.>_<proveedor o cliente>_<n° factura>.pdf` y señala los cruces "por confirmar", duplicados y filas sin comprobante. No cierres el emprendimiento sin este paso.
+6. Si el usuario dice "no hay" u "omitir" para un tipo, sigue sin él y déjalo anotado como pendiente (no hay nada que validar ni renombrar).
 7. Acta, visita técnica e informe se piden aparte, solo cuando toquen: notas o datos de la reunión (.md, texto o Excel) y datos de la visita.
-8. Cierra un emprendimiento (Excel y observaciones) antes de pasar al siguiente. Los entregables quedan en el directorio de trabajo y no se suben a ningún lado sin que el usuario lo pida.
+8. Cierra un emprendimiento (Excel, ZIP renombrado y observaciones) antes de pasar al siguiente. Los entregables quedan en el directorio de trabajo y no se suben a ningún lado sin que el usuario lo pida.
 
 ## Cómo trabajar
 

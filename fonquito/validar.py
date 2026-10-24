@@ -123,7 +123,7 @@ def validar(campos: dict, p: Parametros) -> dict:
             elif idr != p.ruc:
                 soft.append("Receptor identificado con C.I. (10 dígitos) que corresponde al RUC")
             if campos.get("receptor") and not _nombre_coincide(campos["receptor"], p.emprendedora):
-                soft.append(f"Nombre del receptor distinto al de la emprendedora ('{campos['receptor']}'); RUC coincide")
+                soft.append(f"Nombre del receptor distinto al de la emprendedora ('{campos['receptor']}')" + ("; RUC coincide" if chk["receptor"] else ""))
     else:
         chk["receptor"] = True
         comunes = _apellidos_comunes(campos.get("receptor") or "", p.emprendedora)

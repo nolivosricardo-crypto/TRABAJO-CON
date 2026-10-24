@@ -56,8 +56,10 @@ def conciliar(regs, filas, tipo):
             continue
         f = idx.get(num)
         if f is None:
-            out.append(("FALTA", r["n"], num, f"No está en el formato: {r.get('receptor') if tipo == 'venta' else r.get('proveedor')}, "
-                                              f"{r['fecha_date']:%d/%m/%Y}, total ${r['total']:.2f}"))
+            fecha = f"{r['fecha_date']:%d/%m/%Y}" if r.get("fecha_date") else "sin fecha legible"
+            total = f"${r['total']:.2f}" if r.get("total") is not None else "sin total legible"
+            quien = r.get("receptor") if tipo == "venta" else r.get("proveedor")
+            out.append(("FALTA", r["n"], num, f"No está en el formato: {quien}, {fecha}, total {total}"))
             continue
         vistos.add(num)
         for campo, val in (("SUBTOTAL", r["subtotal"]), ("IVA", r["iva"] or 0.0), ("TOTAL", r["total"])):

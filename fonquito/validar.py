@@ -143,6 +143,10 @@ def validar(campos: dict, p: Parametros) -> dict:
         if abs(dif) > p.tolerancia and otros and abs(round(s + i + otros - t, 2)) <= p.tolerancia:
             chk["monto"] = True
             soft.append(f"El total incluye ${otros:.2f} de aporte Seguro Campesino (no es IVA): {s:.2f} + {i:.2f} + {otros:.2f} = {t:.2f}")
+        elif p.tolerancia < abs(dif) <= 0.05:
+            chk["monto"] = False
+            soft.append(f"Diferencia de ${abs(dif):.2f} entre subtotal + IVA y total ({s:.2f} + {i:.2f} ≠ {t:.2f}): "
+                        "probable redondeo por ítem del emisor; verificar en el SRI")
         elif abs(dif) > p.tolerancia:
             obs.append(f"MONTO INCONSISTENTE: {s:.2f} + {i:.2f} = {s + i:.2f} ≠ {t:.2f}")
             hard = True

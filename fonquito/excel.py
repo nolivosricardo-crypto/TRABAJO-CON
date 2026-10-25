@@ -38,7 +38,7 @@ def _hdr(ws, fila, titulos):
 
 
 def construir(regs, params, emprendimiento, archivo_salida, mes_etiqueta, abrev=None, mes_contrato=None,
-              categoria_venta=None, notas_extra=None, clientes_b2b=None, productos=None, conciliacion=None):
+              categoria_venta=None, notas_extra=None, clientes_b2b=None, productos=None, conciliacion=None, ingreso_proyecto="APLICA"):
     """Crea el libro. `params` es validar.Parametros. Devuelve el Workbook."""
     gasto = params.tipo == "gasto"
     wb = Workbook()
@@ -78,7 +78,7 @@ def construir(regs, params, emprendimiento, archivo_salida, mes_etiqueta, abrev=
             etiquetas = [v for k, v in (productos or {}).items() if k.upper() in (r.get("descripcion") or "").upper()]
             producto = " / ".join(dict.fromkeys(etiquetas)) or categoria_venta or r.get("descripcion")
             vals = [r["n"], r["fecha_date"], r.get("id_receptor"), r.get("numero"), r.get("receptor"),
-                    producto, "NACIONAL", "APLICA",
+                    producto, "NACIONAL", ingreso_proyecto,
                     "VENTAS B2B" if b2b else "VENTAS B2C",
                     r["subtotal"], r["iva"], r["total"], r["estado"]]
         fill = _fill(r["estado"], i)

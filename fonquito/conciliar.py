@@ -18,10 +18,12 @@ def _num(v):
 def _fecha(v):
     if isinstance(v, (datetime, date)):
         return v.date() if isinstance(v, datetime) else v
-    try:
-        return datetime.strptime(str(v).strip(), "%d/%m/%Y").date()
-    except ValueError:
-        return None
+    for fmt in ("%d/%m/%Y", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(str(v).strip(), fmt).date()
+        except ValueError:
+            continue
+    return None
 
 
 def leer_anexo(ruta, tipo):

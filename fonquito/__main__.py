@@ -47,7 +47,7 @@ def cmd_validar(a):
     notas = [f"NUMERACIÓN: faltan en la secuencia {', '.join(v)}: son facturas no entregadas o anuladas; las anuladas deben constar "
              f"en el registro como INVÁLIDA (cliente 'ANULADA')." for v in huecos.values()]
     wb = construir(regs, p, a.emprendimiento, Path(a.salida).name, a.mes, a.abrev, a.mes_contrato, a.categoria,
-                   notas_extra=notas, clientes_b2b=a.b2b, conciliacion=concil,
+                   notas_extra=notas, clientes_b2b=a.b2b, conciliacion=concil, ingreso_proyecto=a.ingreso_proyecto,
                    productos=dict(x.split('=', 1) for x in (a.productos or []) if '=' in x))
     Path(a.salida).parent.mkdir(parents=True, exist_ok=True)
     wb.save(a.salida)
@@ -100,6 +100,8 @@ def main(argv=None):
     v.add_argument("--abrev", help="ventas: abreviatura para el No. ING-EXPOST-ABREV-NN")
     v.add_argument("--mes-contrato", help="ventas: número de mes del contrato")
     v.add_argument("--categoria", help="ventas: categoría general PRODUCTO O SERVICIO")
+    v.add_argument("--ingreso-proyecto", default="APLICA", choices=["APLICA", "NO APLICA"],
+                   help="ventas: valor de la columna INGRESO PROYECTO (NO APLICA si no son ingresos del proyecto)")
     v.add_argument("--b2b", nargs="*", help="ventas: textos (nombre o RUC) de clientes con canal VENTAS B2B")
     v.set_defaults(fn=cmd_validar)
     a = ap.parse_args(argv)

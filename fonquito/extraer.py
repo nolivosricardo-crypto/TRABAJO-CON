@@ -128,7 +128,7 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
         m = _buscar(r"Identificaci[oó]n:?\s+\d{10,13}[^\n]*\n([A-ZÁÉÍÓÚÑ ]+)\nDirecci[oó]n", texto)
         if m:
             d["receptor"] = f"{d['receptor']} {m.group(1).strip()}"
-    m = _buscar(r"Identificaci[oó]n:?\s+(\d{10,13})", texto)
+    m = _buscar(r"Identificaci[oó]n:?\s+(\d{10,13})", texto) or _buscar(r"RUC\s*/\s*CI:?\s*(\d{10,13})", texto)
     d["id_receptor"] = m.group(1) if m else None
     m = _buscar(r"Raz[oó]n Social:\s*(.*?)\s+RUC/CI:\s*(\d{10,13})", texto)   # formato "Razón Social: X RUC/CI: N"
     if m:
@@ -138,10 +138,10 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
     m = _buscar(r"Fecha\s+(\d{2}/\d{2}/\d{4})\s+Placa", texto) or _buscar(r"\b(\d{2}/\d{2}/\d{4})\b", texto)
     d["fecha"] = m.group(1) if m else None
 
-    d["subtotal"] = _num(_buscar(r"SUBTOTAL SIN IMPUESTOS?:?\s+\$?" + NUM, texto, re.I))
-    iva = _buscar(r"\bIVA\s*\d+(?:[.,]\d+)?\s*%:?\s+\$?" + NUM, texto)
+    d["subtotal"] = _num(_buscar(r"SUBTOTAL SIN IMPUESTOS?:?[\s$]+" + NUM, texto, re.I))
+    iva = _buscar(r"\bIVA\s*\d+(?:[.,]\d+)?\s*%:?[\s$]+" + NUM, texto)
     d["iva"] = _num(iva) if iva else 0.0
-    d["total"] = _num(_buscar(r"(?:VALOR|IMPORTE) TOTAL(?!\s+SIN):?\s+\$?" + NUM, texto, re.I))
+    d["total"] = _num(_buscar(r"(?:VALOR|IMPORTE) TOTAL(?!\s+SIN):?[\s$]+" + NUM, texto, re.I))
     if d["subtotal"] is None and d["total"] is not None:
         d["subtotal"] = round(d["total"] - d["iva"], 2)
         d["advertencias"].append("Subtotal calculado como total - IVA (no se encontró 'SUBTOTAL SIN IMPUESTOS')")

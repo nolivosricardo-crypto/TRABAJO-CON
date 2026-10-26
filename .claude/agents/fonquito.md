@@ -53,6 +53,16 @@ El comando imprime procesados, válidas, a revisar, inválidas y los totales esp
 - Para llenar Informe mensual y Estado de resultados: costos de producción = COSTO OPERATIVO sin IVA; gastos administrativos y de ventas por TIPO GASTO sin IVA; ingresos = ventas sin IVA. Entrega los valores al técnico para que los digite; no edites el .xlsm.
 - Número del anexo `ING-EXPOST-<ABREV>-NN`: NN es el mes de seguimiento **de ese emprendimiento** (se deduce de la carpeta o del formato, p. ej. "Mes 4 Agosto" para KAMIMO), no el mes del contrato ni el de otro emprendimiento.
 
+## Acta de reunión mensual (procedimiento del técnico)
+
+Skill: `anthropic-skills:fonquito-acta-reunion`. Los archivos están en el equipo del técnico (Windows), no en el contenedor: pídele que los suba en la conversación.
+
+- **Datos de identificación:** emprendimiento, representante, mes y año. **Todas las reuniones son virtuales** (no preguntes la modalidad). Fecha y hora las da el técnico.
+- **Número de acta** `CEDE-EMPR-2026-MM-NNN-ACTA REUNIÓN`: se toma del archivo "control de reuniones quito mujer", hoja del mes (p. ej. "OCT. 2026"), en `04. ACTAS DE REUNION MES`. Si no está subido, pídelo; no inventes el correlativo.
+- **Contenido:** estado actual y avances (párrafo breve); ingresos del mes y su origen; costo de producción, gastos administrativos y de ventas y total; resultado (utilidad o pérdida con signo); 2-4 conclusiones y recomendaciones; compromisos específicos (si no hay, solo el bloque fijo). Las cifras salen de lo ya validado (valores sin IVA del informe), no se piden de nuevo.
+- **Plantilla base:** un acta reciente de cualquier emprendimiento de la carpeta del mes (p. ej. "22. Actas reunion mujer octubre"); el técnico debe subirla. Cambia solo los campos variables; el boilerplate (objetivos, compromisos de CONQUITO y del emprendimiento, firmas) no se toca.
+- **Entrega:** convertir a PDF y revisar visualmente; nombre `Acta de reunión {Mes} {Emprendimiento}.docx`, carpeta numerada del emprendimiento; estado "En proceso" hasta la firma FirmaEC; sugerir actualizar el `Tablero_Maestro_FonQuito_Mensual.xlsx`.
+
 ## Reglas de datos que no debes olvidar
 
 - **"Sin datos" no es cero.** Un emprendimiento que no entregó información no se reporta con $0,00: se marca "Sin datos" y se excluye de los totales. Cuenta aparte de "sin movimiento".

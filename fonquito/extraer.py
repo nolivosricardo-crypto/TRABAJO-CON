@@ -139,6 +139,9 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
     d["fecha"] = m.group(1) if m else None
 
     d["subtotal"] = _num(_buscar(r"SUBTOTAL SIN IMPUESTOS?:?[\s$]+" + NUM, texto, re.I))
+    cd = _buscar(r"SUBTOTAL CON DESCUENTO:?[\s$]+" + NUM, texto, re.I)   # el 'sin impuestos' es previo al descuento
+    if cd:
+        d["subtotal"] = _num(cd)
     iva = _buscar(r"\bIVA\s*\d+(?:[.,]\d+)?\s*%:?[\s$]+" + NUM, texto)
     d["iva"] = _num(iva) if iva else 0.0
     d["total"] = _num(_buscar(r"(?:VALOR|IMPORTE) TOTAL(?!\s+SIN):?[\s$]+" + NUM, texto, re.I))

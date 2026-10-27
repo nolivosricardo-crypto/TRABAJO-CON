@@ -120,6 +120,10 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
 
     m = _buscar(r"Raz[oó]n Social / Nombres y Apellidos:?\s*([^\n]+)", texto)
     d["receptor"] = m.group(1).strip() if m else None
+    if d["receptor"] is None:   # "Razón Social: NOMBRE Teléfono: N" (el nombre no incluye lo que sigue en la línea)
+        m = _buscar(r"Raz[oó]n Social:\s*(.+?)(?:\s+Tel[eé]fono:.*|\s+RUC/CI:.*)?$", texto, re.M)
+        if m and m.group(1).strip() and "Emisor" not in m.group(1):
+            d["receptor"] = m.group(1).strip()
     if d["receptor"] is None:   # formato SIFACON: "Razón Social <nombre>" e "Identificación: <id>"
         m = _buscar(r"Raz[oó]n Social\s+([^\n]+)", texto)
         d["receptor"] = m.group(1).strip() if m else None
@@ -205,6 +209,16 @@ def _descripcion(texto):
         m = re.search(r"(?:Descuento Precio Total|Principal[^\n]*Unitario)\n(.*?)\nSUBTOTAL", texto, re.S)
     if not m:   # formato con "Total Sin Impuestos" y bloque "INFORMACIÓN ADICIONAL"
         m = re.search(r"Impuestos\n(.*?)\nINFORMACI[OÓ]N ADICIONAL", texto, re.S)
+    if not m:   # formato "Código Cant. Detalle Adicional ... Total": CODIGO 1.00 DESCRIPCION $precio $desc $total
+        m = re.search(r"C[oó]digo Cant\.[^\n]*\n(.*?)\nInformaci[oó]n Adicional", texto, re.S)
+        if m:
+            items = []
+            for ln in m.group(1).splitlines():
+                mm = re.match(r"^\S+\s+\d+(?:[.,]\d+)?\s+(.+?)\s+\$\s*\d", ln)
+                if mm:
+                    items.append(mm.group(1).strip())
+            if items:
+                return "; ".join(dict.fromkeys(items))[:200]
     if not m:
         return None
     bruto = re.sub(r"\bnull\b", " ", m.group(1))

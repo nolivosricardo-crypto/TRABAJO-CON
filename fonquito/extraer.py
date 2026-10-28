@@ -51,9 +51,10 @@ def dividir_paginas(paginas, nombre) -> list:
     for i, pg in enumerate(paginas, 1):
         if not pg.strip():
             continue
-        if CLAVE_RE.search(pg):
-            grupos.append({"pag": [i], "txt": [pg]})
-        elif grupos:
+        mc = CLAVE_RE.search(pg)
+        if mc and not (grupos and mc.group(0) in "\n".join(grupos[-1]["txt"])):
+            grupos.append({"pag": [i], "txt": [pg]})        # clave nueva: otra factura
+        elif grupos:                                          # sin clave, o la clave ya vista (p. ej. 'controlInterno')
             grupos[-1]["pag"].append(i)
             grupos[-1]["txt"].append(pg)
     out = []
@@ -132,6 +133,9 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
         m = _buscar(r"Identificaci[oó]n:?\s+\d{10,13}[^\n]*\n([A-ZÁÉÍÓÚÑ ]+)\nDirecci[oó]n", texto)
         if m:
             d["receptor"] = f"{d['receptor']} {m.group(1).strip()}"
+    mc = _buscar(r"Cliente:\s*Identificaci[oó]n:\s*(\d{10,13})\s*\n(.+?)\s+Direcci[oó]n:", texto)
+    if mc and d["receptor"] is None:
+        d["receptor"] = mc.group(2).strip()
     m = _buscar(r"Identificaci[oó]n:?\s+(\d{10,13})", texto) or _buscar(r"RUC\s*/\s*CI:?\s*(\d{10,13})", texto)
     d["id_receptor"] = m.group(1) if m else None
     m = _buscar(r"Raz[oó]n Social:\s*(.*?)\s+RUC/CI:\s*(\d{10,13})", texto)   # formato "Razón Social: X RUC/CI: N"
@@ -143,12 +147,16 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
     d["fecha"] = m.group(1) if m else None
 
     d["subtotal"] = _num(_buscar(r"SUBTOTAL SIN IMPUESTOS?:?[\s$]+" + NUM, texto, re.I))
+    if d["subtotal"] is None:   # formato "SubTotal 50.93" (sin el % de las líneas por tarifa)
+        d["subtotal"] = _num(_buscar(r"\bSubTotal\s+" + NUM, texto))
     cd = _buscar(r"SUBTOTAL CON DESCUENTO:?[\s$]+" + NUM, texto, re.I)   # el 'sin impuestos' es previo al descuento
     if cd:
         d["subtotal"] = _num(cd)
     iva = _buscar(r"\bIVA\s*\d+(?:[.,]\d+)?\s*%:?[\s$]+" + NUM, texto)
     d["iva"] = _num(iva) if iva else 0.0
     d["total"] = _num(_buscar(r"(?:VALOR|IMPORTE) TOTAL(?!\s+SIN):?[\s$]+" + NUM, texto, re.I))
+    if d["total"] is None:      # "TOTAL 93.30" en mayúsculas (no confundir con "SubTotal")
+        d["total"] = _num(_buscar(r"(?<![Ss]ub)\bTOTAL\s+" + NUM, texto))
     if d["subtotal"] is None and d["total"] is not None:
         d["subtotal"] = round(d["total"] - d["iva"], 2)
         d["advertencias"].append("Subtotal calculado como total - IVA (no se encontró 'SUBTOTAL SIN IMPUESTOS')")
@@ -209,6 +217,12 @@ def _descripcion(texto):
         m = re.search(r"(?:Descuento Precio Total|Principal[^\n]*Unitario)\n(.*?)\nSUBTOTAL", texto, re.S)
     if not m:   # formato con "Total Sin Impuestos" y bloque "INFORMACIÓN ADICIONAL"
         m = re.search(r"Impuestos\n(.*?)\nINFORMACI[OÓ]N ADICIONAL", texto, re.S)
+    if not m:   # formato "Código Descripción Cantidad Unidad ...": CODIGO DESCRIPCION 1.00 UNIDAD precio desc total
+        bloque = re.search(r"C[oó]digo Descripci[oó]n Cantidad[^\n]*\n(.*?)\nDATOS ADICIONALES", texto, re.S)
+        if bloque:
+            items = [re.sub(r"\b\d{5,}\b\s*", "", mm.group(1)).strip() for mm in re.finditer(r"^\S+\s+(.+?)\s+\d+(?:\.\d+)?\s+UNIDAD", bloque.group(1), re.M)]
+            if items:
+                return "; ".join(dict.fromkeys(items))[:200]
     if not m:   # formato "Código Cant. Detalle Adicional ... Total": CODIGO 1.00 DESCRIPCION $precio $desc $total
         m = re.search(r"C[oó]digo Cant\.[^\n]*\n(.*?)\nInformaci[oó]n Adicional", texto, re.S)
         if m:

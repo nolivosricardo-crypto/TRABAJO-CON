@@ -161,7 +161,8 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
         d["subtotal"] = round(d["total"] - d["iva"], 2)
         d["advertencias"].append("Subtotal calculado como total - IVA (no se encontró 'SUBTOTAL SIN IMPUESTOS')")
     sc = [_num(re.match(NUM, v)) for v in re.findall(r"Seguro Campesino:?\s+(\S+)", texto) if re.match(NUM, v)]
-    d["otros_cargos"] = max(sc) if sc and max(sc) > 0 else 0.0   # aporte Seguro Campesino: suma al total sin ser IVA
+    pr = [_num(re.match(NUM, v)) for v in re.findall(r"\bPROPINA:?[\s$]+(\S+)", texto, re.I) if re.match(NUM, v)]
+    d["otros_cargos"] = max(sc + pr) if (sc or pr) and max(sc + pr) > 0 else 0.0   # Seguro Campesino o propina: suman al total sin ser IVA
     d["descripcion"] = _descripcion(texto)
     d["texto"] = texto
     for campo in ("clave", "numero", "fecha", "subtotal", "total", "receptor", "id_receptor"):

@@ -212,7 +212,27 @@ def _limpiar(desc: str) -> str:
     return re.sub(r"\s+", " ", limpio).strip(" -")
 
 
+def _descripcion_codigo_cantidad(texto):
+    """Formato "Código Cantidad Descripción ...": CODIGO 1.00 DESCRIPCION precio $desc $total (+ líneas de continuación)."""
+    m = re.search(r"C[oó]digo Cant(?:idad|\.)[^\n]*\n(.*?)\nInformaci[oó]n Adicional", texto, re.S)
+    if not m:
+        return None
+    items = []
+    for ln in m.group(1).splitlines():
+        if re.match(r"^(Principal|Adicionales|Auxiliar)\b", ln):
+            continue
+        mm = re.match(r"^\S+\s+\d+(?:[.,]\d+)?\s+(.+?)\s+\$?\d[\d.,]*(?:\s|$)", ln)
+        if mm:
+            items.append(mm.group(1).strip())
+        elif items and re.fullmatch(r"[A-Za-zÁÉÍÓÚÑáéíóúñ ./-]+", ln.strip()):
+            items[-1] += " " + ln.strip()           # continuación de la descripción
+    return "; ".join(dict.fromkeys(items))[:200] if items else None
+
+
 def _descripcion(texto):
+    cc = _descripcion_codigo_cantidad(texto)
+    if cc:
+        return cc
     m = re.search(r"Principal Auxiliar Subsidio\n(.*?)\n(?:SUBTOTAL|Informaci[oó]n Adicional)", texto, re.S)
     if not m:   # formato SIFACON: el detalle va tras "Descuento Precio Total" (o "Unitario")
         m = re.search(r"(?:Descuento Precio Total|Principal[^\n]*Unitario)\n(.*?)\nSUBTOTAL", texto, re.S)

@@ -63,6 +63,8 @@ Skill: `anthropic-skills:fonquito-acta-reunion`. Los archivos están en el equip
 - **Plantilla base:** un acta reciente de cualquier emprendimiento de la carpeta del mes (p. ej. "22. Actas reunion mujer octubre"); el técnico debe subirla. Cambia solo los campos variables; el boilerplate (objetivos, compromisos de CONQUITO y del emprendimiento, firmas) no se toca.
 - **Entrega:** convertir a PDF y revisar visualmente; nombre `Acta de reunión {Mes} {Emprendimiento}.docx`, carpeta numerada del emprendimiento; estado "En proceso" hasta la firma FirmaEC; sugerir actualizar el `Tablero_Maestro_FonQuito_Mensual.xlsx`.
 
+- **Nombre del cargo** en todo documento de contratación (TDR, anexos, informes): "Técnico de seguimiento ex post de FonQuito". Contrato de 6 meses desde enero de 2027, valor total $8.040,00 IVA incluido, $1.340,00 mensuales.
+
 ## Reglas de datos que no debes olvidar
 
 - **"Sin datos" no es cero.** Un emprendimiento que no entregó información no se reporta con $0,00: se marca "Sin datos" y se excluye de los totales. Cuenta aparte de "sin movimiento".

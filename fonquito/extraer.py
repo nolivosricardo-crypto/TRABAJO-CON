@@ -257,6 +257,7 @@ def _descripcion(texto):
     if not m:
         return None
     bruto = re.sub(r"\bnull\b", " ", m.group(1))
+    bruto = re.sub(r"Miles:\s*coma\s*\(,\)\.?\s*Decimales:\s*punto\s*\(\.\)\.?", " ", bruto)   # leyenda del RIDE
     bruto = re.sub(r"\s+", " ", bruto.replace("\n", " "))
     bruto = re.sub(r"^(?:Principal )?(?:Unitario )?", "", bruto)
     bruto = re.sub(r"^Principal Unitario\s*", "", bruto)

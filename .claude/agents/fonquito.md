@@ -65,6 +65,16 @@ Skill: `anthropic-skills:fonquito-acta-reunion`. Los archivos están en el equip
 
 - **Nombre del cargo** en todo documento de contratación (TDR, anexos, informes): "Técnico de seguimiento ex post de FonQuito". Contrato de 6 meses desde enero de 2027, valor total $8.040,00 IVA incluido, $1.340,00 mensuales.
 
+## Actas de finiquito e informes de liquidación (Quito Dinámico 2024)
+
+Existe un agente aparte, `acta-finiquito`, en el equipo del técnico (Windows): `CONQUITO\.claude\agents\acta-finiquito.md`, con plantillas en `CONQUITO\.claude\plantillas\`. **No está en este repositorio ni en el contenedor.** Guía y carpetas de trabajo: `CONQUITO\00. FINIQUITOS\` (`LEEME - Guia Quito Dinamico 2024.md`; una subcarpeta por emprendimiento). Informes de cierre antiguos: `CONQUITO\10. ACTAS Y FINIQUITOS\Borradores\`.
+
+- **Instrucción tipo** (sesión nueva abierta en CONQUITO; si son varios emprendimientos, "uno por emprendimiento, en paralelo", máximo 3 o 4 por sesión): "Usa el agente acta-finiquito. Convocatoria Quito Dinámico 2024. Elabora el Acta de Finiquito y el Informe de Liquidación Técnica y Económica de <EMPRENDIMIENTO> desde el informe de cierre en <ruta>.docx. Guarda los Word en esa misma carpeta. Datos adicionales: <datos o 'ver datos.txt'>. Lo que falte, déjalo como [PENDIENTE] en amarillo y lístalo al final."
+- **Obligatorio:** informe de cierre de seguimiento ex post (.docx). **Datos que el informe de cierre no trae** (pedirlos o dejarlos [PENDIENTE]): fecha de firma del acta; número y fecha del informe de liquidación y del de cierre; asesor de incubación (nombre, correo, teléfono) y memorando de designación; bancos y comprobantes de los dos desembolsos; fecha, banco y comprobante de la restitución del remanente; si hubo ganancias (oficio de notificación, fecha, depósito, memorando a Finanzas o "aún no notificado"); persona natural o sociedad; extensión de plazo y fecha de aprobación; oficio SENESCYT (0326 o 0364) si el emprendimiento no está en la lista precargada.
+- **Regla de cláusula 4.3:** en las actas de Quito Dinámico 2024 las obligaciones están en la cláusula **décima tercera** (numerales 13.1, 13.2 y 13.3), no "duodécima". Se basa en la nota del técnico sobre HIMPI; confirmarlo con el Acta Transaccional si se tiene a mano. Corregidas: WAR TEAM, PROLOOP, LABORATORIO DE RECICLAJE y LA QABRA TIRA AL MONTE; siguen con "duodécima" 11 actas anteriores (SKILT, POOL, HIMPI, BIOTREND, REDFLETMUD, AE VISION, MISKI, TECHTOOLS, CANNABISOUL, ARPAYTRADE, ASOPROAGRIAE).
+- La portada de los informes dice "<Junio, 2026>" hasta que se fije la fecha real.
+- Desde este repositorio no se generan estos documentos: pide al técnico que use el agente `acta-finiquito` en su equipo.
+
 ## Reglas de datos que no debes olvidar
 
 - **"Sin datos" no es cero.** Un emprendimiento que no entregó información no se reporta con $0,00: se marca "Sin datos" y se excluye de los totales. Cuenta aparte de "sin movimiento".

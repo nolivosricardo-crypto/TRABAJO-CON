@@ -153,6 +153,8 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
     if cd:
         d["subtotal"] = _num(cd)
     iva = _buscar(r"\bIVA\s*\d+(?:[.,]\d+)?\s*%:?[\s$]+" + NUM, texto)
+    if not iva:   # "IVA TARIFA ESPECIAL 1.38" (tarifa diferenciada, sin el % en el rótulo)
+        iva = _buscar(r"\bIVA\s+TARIFA\s+ESPECIAL:?[\s$]+" + NUM, texto, re.I)
     d["iva"] = _num(iva) if iva else 0.0
     d["total"] = _num(_buscar(r"(?:VALOR|IMPORTE) TOTAL(?!\s+SIN):?[\s$]+" + NUM, texto, re.I))
     if d["total"] is None:      # "TOTAL 93.30" en mayúsculas (no confundir con "SubTotal")

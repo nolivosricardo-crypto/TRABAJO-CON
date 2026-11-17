@@ -117,7 +117,10 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
     m = _buscar(r"R\.?\s?U\.?\s?C\.?\s*:?\s*(\d{13})", texto)
     d["ruc_emisor"] = m.group(1) if m else None
 
-    d["proveedor"] = _proveedor(texto, d["clave"])
+    d["proveedor"] = _proveedor(texto, d["clave"]) or _proveedor_alterno(texto)
+    if d["proveedor"] is None:   # "Cliente: X" (formato con el cliente en el encabezado): el emisor es la 1.ª línea con nombre
+        m = re.search(r"^\s*([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ .,&'-]{5,80})\s+Fecha de Emisi[oó]n", texto, re.M)
+        d["proveedor"] = m.group(1).strip() if m else None
 
     m = _buscar(r"Raz[oó]n Social / Nombres y Apellidos:?\s*([^\n]+)", texto)
     d["receptor"] = m.group(1).strip() if m else None
@@ -136,7 +139,8 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
     mc = _buscar(r"Cliente:\s*Identificaci[oó]n:\s*(\d{10,13})\s*\n(.+?)\s+Direcci[oó]n:", texto)
     if mc and d["receptor"] is None:
         d["receptor"] = mc.group(2).strip()
-    m = _buscar(r"Identificaci[oó]n:?\s+(\d{10,13})", texto) or _buscar(r"RUC\s*/\s*CI:?\s*(\d{10,13})", texto)
+    m = (_buscar(r"Identificaci[oó]n:?\s+(\d{10,13})", texto) or _buscar(r"RUC\s*/\s*CI:?\s*(\d{10,13})", texto)
+         or _buscar(r"R\.?U\.?C\.?\s*/\s*C\.?I\.?:?\s*(\d{10,13})", texto))
     d["id_receptor"] = m.group(1) if m else None
     m = _buscar(r"Raz[oó]n Social:\s*(.*?)\s+RUC/CI:\s*(\d{10,13})", texto)   # formato "Razón Social: X RUC/CI: N"
     if m:
@@ -152,7 +156,14 @@ def extraer_campos(texto: str, archivo: str = "") -> dict:
     cd = _buscar(r"SUBTOTAL CON DESCUENTO:?[\s$]+" + NUM, texto, re.I)   # el 'sin impuestos' es previo al descuento
     if cd:
         d["subtotal"] = _num(cd)
-    iva = _buscar(r"\bIVA\s*\d+(?:[.,]\d+)?\s*%:?[\s$]+" + NUM, texto)
+    iva = None
+    for mi in re.finditer(r"\bIVA\s*\d+(?:[.,]\d+)?\s*%:?[\s$]+" + NUM, texto):
+        if not texto[max(0, mi.start() - 10):mi.start()].upper().rstrip().endswith("SUBTOTAL"):   # "SUBTOTAL IVA 0%" es una base, no el impuesto
+            iva = mi
+            if _num(mi) not in (None, 0.0):
+                break
+    if not iva:   # "IVA 7.50" sin el % en el rótulo
+        iva = _buscar(r"^\s*IVA:?[\s$]+" + NUM, texto, re.M)
     if not iva:   # "IVA TARIFA ESPECIAL 1.38" (tarifa diferenciada, sin el % en el rótulo)
         iva = _buscar(r"\bIVA\s+TARIFA\s+ESPECIAL:?[\s$]+" + NUM, texto, re.I)
     d["iva"] = _num(iva) if iva else 0.0
@@ -188,8 +199,17 @@ def _proveedor(texto, clave):
                     if m and m.group(1).strip() and not re.match(r"^\d{2}/\d{2}/\d{4}", m.group(1).strip()):
                         nombre = f"{nombre} {m.group(1).strip()}"
                         break
+            if not nombre or re.match(r"^(FECHA Y HORA|Cliente:|CLAVE DE ACCESO|Direcci)", nombre, re.I):
+                nombre = None
             return nombre or None
     return None
+
+
+def _proveedor_alterno(texto):
+    """Facturas cuyo nombre del emisor va suelto antes de 'CLAVE DE ACCESO' (formato 'CI/RUC:' / 'Factura: 001-002-…')
+    o en un renglón en mayúsculas sin etiqueta, justo antes de 'Dirección Matríz'."""
+    m = re.search(r"\n\s*([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ .,&'-]{5,80})\n(?:\s*\n)*\s*(?:CLAVE DE ACCESO|Direcci[oó]n Matr[ií]z)", texto)
+    return m.group(1).strip() if m else None
 
 
 _UNIDADES = {"ML", "MM", "G", "GR", "KG", "L", "OZ", "U", "UN", "X", "CM"}
